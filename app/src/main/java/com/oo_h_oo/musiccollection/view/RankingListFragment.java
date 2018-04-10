@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -17,18 +18,24 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.oo_h_oo.musiccollection.R;
 import com.oo_h_oo.musiccollection.adapter.MusicListAdapter;
+import com.oo_h_oo.musiccollection.musicapi.NetMusicHelper;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
+import com.oo_h_oo.musiccollection.musicmanage.NetMusicType;
 import com.oo_h_oo.musiccollection.musicmanage.Playlist;
+import com.oo_h_oo.musiccollection.musicmanage.RankingListType;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RankingListFragment extends Fragment {
+public class RankingListFragment extends Fragment implements View.OnClickListener {
     private PullToRefreshListView musicListView;
     private MusicListAdapter adapter;
     private List<Music> list = new ArrayList<>();
-    private int offset = 0;
-    private int itenCount = 0;
+    private RankingListType rankingListType = RankingListType.HotList;
+    private NetMusicType pageType = NetMusicType.QQMusic;
+    Button hotButtno;
+    Button newsButtno;
+    Button soarButtno;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rankinglist, null);
@@ -39,50 +46,74 @@ public class RankingListFragment extends Fragment {
         musicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Playlist item = (Playlist)adapterView.getItemAtPosition(i);
-                Snackbar.make(view, "Don't click me.please!.I'am " + item.getUrl(), Snackbar.LENGTH_SHORT).show();
+                Music item = (Music)adapterView.getItemAtPosition(i);
+                Snackbar.make(view, "Don't click me.please!.I'am " + item.getTitle(), Snackbar.LENGTH_SHORT).show();
             }
         });
         musicListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>(){
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView){
                 Log.e("TAG", "onPullDownToRefresh");
-                offset = 0;
-                itenCount = 0;
                 //这里写下拉刷新的任务
-                new RankingListFragment.GetDataTask(true).execute();
+                new RankingListFragment.GetDataTask().execute();
             }
 
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView){
                 Log.e("TAG", "onPullUpToRefresh");
                 //这里写上拉加载更多的任务
-                new RankingListFragment.GetDataTask(false).execute();
             }
         });
-        new RankingListFragment.GetDataTask(true).execute();
+        new RankingListFragment.GetDataTask().execute();
+
+        hotButtno = view.findViewById(R.id.hot_list);
+        newsButtno = view.findViewById(R.id.new_song_list);
+        soarButtno = view.findViewById(R.id.soar_list);
+        hotButtno.setOnClickListener(this);
+        newsButtno.setOnClickListener(this);
+        soarButtno.setOnClickListener(this);
         return view;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.hot_list:
+                hotButtno.setEnabled(false);
+                newsButtno.setEnabled(true);
+                soarButtno.setEnabled(true);
+                rankingListType = RankingListType.HotList;
+                new RankingListFragment.GetDataTask().execute();
+                break;
+            case R.id.new_song_list:
+                hotButtno.setEnabled(true);
+                newsButtno.setEnabled(false);
+                soarButtno.setEnabled(true);
+                rankingListType = RankingListType.NewSongList;
+                new RankingListFragment.GetDataTask().execute();
+                break;
+            case R.id.soar_list:
+                hotButtno.setEnabled(true);
+                newsButtno.setEnabled(true);
+                soarButtno.setEnabled(false);
+                rankingListType = RankingListType.SoarList;
+                new RankingListFragment.GetDataTask().execute();
+                break;
+        }
     }
 
     private class GetDataTask extends AsyncTask<Void, Void, List<Music>>
     {
-        private boolean isPullDown;
-        public GetDataTask(boolean isPullDown){
-            super();
-            this.isPullDown = isPullDown;
-        }
         @Override
         protected List<Music> doInBackground(Void... params)
         {
-            return getData(offset,itenCount);
+            return getData();
         }
 
         @Override
         protected void onPostExecute(List<Music> result)
         {
-            if (this.isPullDown) list.clear();
-            offset++;
-            itenCount += result.size();
+            list.clear();
             list.addAll(result);
             adapter.notifyDataSetChanged();
             // Call onRefreshComplete when the list has been refreshed.
@@ -90,17 +121,8 @@ public class RankingListFragment extends Fragment {
         }
     }
 
-    private List<Music> getData(int offset, int count){
-        List<Music> list = new ArrayList<>();
-        if (count>=200) return list;
-        for (int i=0; i < 30;i++){
-            Music music = new Music();
-            music.setTitle("测试标题" + (count + i+1));
-            music.setSinger("歌手" + (count + i+1));
-            music.setAlbum("专辑" + (count + i+1));
-            list.add(music);
-        }
-        return list;
+    private List<Music> getData(){
+        return NetMusicHelper.getRankingMusicList(rankingListType, pageType);
     }
 
     private void setPullToRefreshLable(){
@@ -108,10 +130,5 @@ public class RankingListFragment extends Fragment {
         startLabels.setPullLabel("一直划，划...");// 刚下拉时，显示的提示
         startLabels.setRefreshingLabel("正在刷新哦...");// 刷新时
         startLabels.setReleaseLabel("松开，松开就刷新...");// 下来达到一定距离时，显示的提示
-
-        ILoadingLayout endLabels = musicListView.getLoadingLayoutProxy(false, true);
-        endLabels.setPullLabel("一直划，划...");// 刚下拉时，显示的提示
-        endLabels.setRefreshingLabel("正在加载哦...");// 刷新时
-        endLabels.setReleaseLabel("松开，松开就加载...");// 下来达到一定距离时，显示的提示
     }
 }

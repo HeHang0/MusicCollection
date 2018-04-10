@@ -26,11 +26,11 @@ public class Music {
         this.album = album;
     }
 
-    public String getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
@@ -93,7 +93,7 @@ public class Music {
     private String title = "";
     private String singer = "";
     private String album = "";
-    private String duration = "";
+    private long duration = 0;
     private String size = "";
     private String bitRate = "";
     private String path = "";

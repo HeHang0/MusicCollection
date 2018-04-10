@@ -1,8 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/hot_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="热歌榜" />
+        <Button
+            android:id="@+id/new_song_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="新歌榜" />
+        <Button
+            android:id="@+id/soar_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="飙升榜" />
+
+    </LinearLayout>
+    <!--<com.beardedhen.androidbootstrap.BootstrapButtonGroup-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--app:buttonMode="radio"-->
+        <!--&gt;-->
+
+        <!--<com.beardedhen.androidbootstrap.BootstrapButton-->
+            <!--android:id="@+id/bbutton_group_checked1"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="热歌榜"-->
+            <!--/>-->
+
+        <!--<com.beardedhen.androidbootstrap.BootstrapButton-->
+            <!--android:id="@+id/bbutton_group_checked2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="新歌榜"-->
+            <!--/>-->
+
+        <!--<com.beardedhen.androidbootstrap.BootstrapButton-->
+            <!--android:id="@+id/bbutton_group_checked3"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="飙升榜"-->
+            <!--/>-->
+    <!--</com.beardedhen.androidbootstrap.BootstrapButtonGroup>-->
+
     <com.handmark.pulltorefresh.library.PullToRefreshListView
         xmlns:ptr="http://schemas.android.com/apk/res-auto"
         android:id="@+id/listview_rankinglist"
@@ -10,7 +67,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:scrollbarStyle="insideOverlay"
-        android:verticalSpacing="5dp"
-        ptr:ptrMode="both"/>
+        android:verticalSpacing="5dp">
 
-</RelativeLayout>
+    </com.handmark.pulltorefresh.library.PullToRefreshListView>
+
+</LinearLayout>

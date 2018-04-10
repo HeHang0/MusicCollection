@@ -12,8 +12,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.beardedhen.androidbootstrap.TypefaceProvider;
 import com.oo_h_oo.musiccollection.adapter.ViewPagerAdapter;
 import com.oo_h_oo.musiccollection.view.DiscoverFragment;
+import com.oo_h_oo.musiccollection.view.PlayListCollectionFragment;
 import com.oo_h_oo.musiccollection.view.RankingListFragment;
 import com.oo_h_oo.musiccollection.widget.BaseFragment;
 import com.oo_h_oo.musiccollection.widget.BottomNavigationViewHelper;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TypefaceProvider.registerDefaultIconSets();
         setContentView(R.layout.activity_main);
         makeStatusBarTransparent();
 
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.addFragment(new DiscoverFragment());
         adapter.addFragment(new RankingListFragment());
-        adapter.addFragment(BaseFragment.newInstance(3,"歌单"));
+        adapter.addFragment(new PlayListCollectionFragment());
         adapter.addFragment(BaseFragment.newInstance(4,"本地"));
         viewPager.setAdapter(adapter);
     }

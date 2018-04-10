@@ -1,5 +1,6 @@
 package com.oo_h_oo.musiccollection.view;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -15,6 +16,9 @@ import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.oo_h_oo.musiccollection.R;
+import com.oo_h_oo.musiccollection.musicapi.NetMusicHelper;
+import com.oo_h_oo.musiccollection.musicapi.returnhelper.PlayListAndCount;
+import com.oo_h_oo.musiccollection.musicmanage.NetMusicType;
 import com.oo_h_oo.musiccollection.musicmanage.Playlist;
 import com.oo_h_oo.musiccollection.adapter.PlayListAdapter;
 
@@ -27,11 +31,12 @@ public class DiscoverFragment extends Fragment {
     private PullToRefreshGridView playListView;
     private PlayListAdapter adapter;
     private List<Playlist> list = new ArrayList<>();
+    private NetMusicType pageType = NetMusicType.QQMusic;
     private int offset = 0;
-    private int itenCount = 0;
+    private int pageCount = 1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_discover, null);
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.fragment_discover, null);
         playListView = view.findViewById(R.id.listview_discover);
         adapter = new PlayListAdapter(inflater, list);
         setPullToRefreshLable();
@@ -48,7 +53,7 @@ public class DiscoverFragment extends Fragment {
             public void onPullDownToRefresh(PullToRefreshBase<GridView> refreshView){
                 Log.e("TAG", "onPullDownToRefresh");
                 offset = 0;
-                itenCount = 0;
+                pageCount = 1;
                 //这里写下拉刷新的任务
                 new GetDataTask(true).execute();
             }
@@ -64,17 +69,18 @@ public class DiscoverFragment extends Fragment {
         return view;
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class GetDataTask extends AsyncTask<Void, Void, List<Playlist>>
     {
         private boolean isPullDown;
-        public GetDataTask(boolean isPullDown){
+        GetDataTask(boolean isPullDown){
             super();
             this.isPullDown = isPullDown;
         }
         @Override
         protected List<Playlist> doInBackground(Void... params)
         {
-            return getData(offset,itenCount);
+            return getData();
         }
 
         @Override
@@ -82,7 +88,7 @@ public class DiscoverFragment extends Fragment {
         {
             if (this.isPullDown) list.clear();
             offset++;
-            itenCount += result.size();
+            pageCount += result.size();
             list.addAll(result);
             adapter.notifyDataSetChanged();
             // Call onRefreshComplete when the list has been refreshed.
@@ -90,11 +96,13 @@ public class DiscoverFragment extends Fragment {
         }
     }
 
-    private List<Playlist> getData(int offset, int count){
+    private List<Playlist> getData(){
         List<Playlist> list = new ArrayList<>();
-        if (count>=200) return list;
-        for (int i=0; i < 30;i++){
-            list.add(new Playlist((count + 1 + i) + "测试测试测试测试测试测试测试测试测试测试测试测试", "https://p1.music.126.net/ImfNhEZ47Wfx825XLTf-vw==/109951163214338579.jpg?param=150y150", "" + (count + i + 1)));
+        if (offset > 5) return list;
+        if (offset < pageCount){
+            PlayListAndCount playListAndCount = NetMusicHelper.GetPlayList(offset,pageType);
+            list.addAll(playListAndCount.getList());
+            pageCount = playListAndCount.getCount();
         }
         return list;
     }
