@@ -12,9 +12,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
@@ -83,6 +85,17 @@ public class ImageLoader {
             queuePhoto(url, imageView);
         }
     }
+//    public Bitmap getBitmap(String path, BitmapFactory.Options options) throws IOException {
+//        Bitmap bitmap = memoryCache.get(path);
+//        if (bitmap != null) {
+//            // Display image from Memory cache
+//            return bitmap;
+//        } else {
+//            URL url = new URL(path);
+//            // Display image from File cache or Network
+//            return BitmapFactory.decodeStream(url.openStream(), null,options);
+//        }
+//    }
 
     private void queuePhoto(String url, ImageView imageView) {
         PhotoToLoad photoToLoad = new PhotoToLoad(url, imageView);
@@ -120,7 +133,35 @@ public class ImageLoader {
             }
             return null;
         }
+    }
 
+    public String getBitmapFilePath(String url) {
+        File f = fileCache.getFile(url);
+
+        if (f.exists()) {
+            return f.getPath();
+        }
+
+        // From Network
+        try {
+            URL imageUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) imageUrl
+                    .openConnection();
+            conn.setConnectTimeout(2000);
+            conn.setReadTimeout(2000);
+            conn.setInstanceFollowRedirects(true);
+            InputStream is = conn.getInputStream();
+            OutputStream os = new FileOutputStream(f);
+            copyStream(is, os);
+            os.close();
+            conn.disconnect();
+            return f.getPath();
+        } catch (Throwable ex) {
+            if (ex instanceof OutOfMemoryError) {
+                clearCache();
+            }
+            return "";
+        }
     }
 
     private void copyStream(InputStream is, OutputStream os) {

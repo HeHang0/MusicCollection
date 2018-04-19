@@ -1,5 +1,6 @@
 package com.oo_h_oo.musiccollection.view;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -13,11 +14,16 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.oo_h_oo.musiccollection.MainActivity;
+import com.oo_h_oo.musiccollection.PlayActivity;
 import com.oo_h_oo.musiccollection.R;
 import com.oo_h_oo.musiccollection.adapter.MusicListAdapter;
+import com.oo_h_oo.musiccollection.defaultres.GlobalResources;
 import com.oo_h_oo.musiccollection.musicapi.NetMusicHelper;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
 import com.oo_h_oo.musiccollection.musicmanage.NetMusicType;
@@ -33,9 +39,15 @@ public class RankingListFragment extends Fragment implements View.OnClickListene
     private List<Music> list = new ArrayList<>();
     private RankingListType rankingListType = RankingListType.HotList;
     private NetMusicType pageType = NetMusicType.QQMusic;
-    Button hotButtno;
-    Button newsButtno;
-    Button soarButtno;
+
+    private Button hotButtno;
+    private Button newsButtno;
+    private Button soarButtno;
+
+    private FloatingActionMenu fabMenu;
+    private FloatingActionButton qqmusicFab;
+    private FloatingActionButton cloudFab;
+    private FloatingActionButton xiamiFab;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rankinglist, null);
@@ -47,7 +59,7 @@ public class RankingListFragment extends Fragment implements View.OnClickListene
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Music item = (Music)adapterView.getItemAtPosition(i);
-                Snackbar.make(view, "Don't click me.please!.I'am " + item.getTitle(), Snackbar.LENGTH_SHORT).show();
+                GlobalResources.getInstance().addMusic(item, true);
             }
         });
         musicListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>(){
@@ -72,6 +84,15 @@ public class RankingListFragment extends Fragment implements View.OnClickListene
         hotButtno.setOnClickListener(this);
         newsButtno.setOnClickListener(this);
         soarButtno.setOnClickListener(this);
+
+        fabMenu = view.findViewById(R.id.menu_pagetype);
+        qqmusicFab = view.findViewById(R.id.qqmusicfab);
+        cloudFab = view.findViewById(R.id.cloudfab);
+        xiamiFab = view.findViewById(R.id.xiamifab);
+        qqmusicFab.setOnClickListener(clickListener);
+        cloudFab.setOnClickListener(clickListener);
+        xiamiFab.setOnClickListener(clickListener);
+        qqmusicFab.setEnabled(false);
         return view;
     }
 
@@ -100,10 +121,39 @@ public class RankingListFragment extends Fragment implements View.OnClickListene
                 new RankingListFragment.GetDataTask().execute();
                 break;
         }
-    }
+    }    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            qqmusicFab.setEnabled(true);
+            cloudFab.setEnabled(true);
+            xiamiFab.setEnabled(true);
+            switch (v.getId()) {
+                case R.id.qqmusicfab:
+                    pageType = NetMusicType.QQMusic;
+                    qqmusicFab.setEnabled(false);
+                    break;
+                case R.id.cloudfab:
+                    pageType = NetMusicType.CloudMusix;
+                    cloudFab.setEnabled(false);
+                    break;
+                case R.id.xiamifab:
+                    pageType = NetMusicType.XiaMiMusic;
+                    xiamiFab.setEnabled(false);
+                    break;
+            }
+            new GetDataTask().execute();
+            fabMenu.close(true);
+        }
+    };
 
     private class GetDataTask extends AsyncTask<Void, Void, List<Music>>
     {
+
+        @Override
+        protected void onPreExecute(){
+            musicListView.setRefreshing();
+        }
+
         @Override
         protected List<Music> doInBackground(Void... params)
         {

@@ -31,34 +31,9 @@
             android:text="飙升榜" />
 
     </LinearLayout>
-    <!--<com.beardedhen.androidbootstrap.BootstrapButtonGroup-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="horizontal"-->
-        <!--app:buttonMode="radio"-->
-        <!--&gt;-->
-
-        <!--<com.beardedhen.androidbootstrap.BootstrapButton-->
-            <!--android:id="@+id/bbutton_group_checked1"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="热歌榜"-->
-            <!--/>-->
-
-        <!--<com.beardedhen.androidbootstrap.BootstrapButton-->
-            <!--android:id="@+id/bbutton_group_checked2"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="新歌榜"-->
-            <!--/>-->
-
-        <!--<com.beardedhen.androidbootstrap.BootstrapButton-->
-            <!--android:id="@+id/bbutton_group_checked3"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="飙升榜"-->
-            <!--/>-->
-    <!--</com.beardedhen.androidbootstrap.BootstrapButtonGroup>-->
+<android.support.design.widget.CoordinatorLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
 
     <com.handmark.pulltorefresh.library.PullToRefreshListView
         xmlns:ptr="http://schemas.android.com/apk/res-auto"
@@ -70,5 +45,53 @@
         android:verticalSpacing="5dp">
 
     </com.handmark.pulltorefresh.library.PullToRefreshListView>
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/menu_pagetype"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        app:menu_icon="@drawable/ic_menu"
+        app:menu_labels_ellipsize="end"
+        app:menu_labels_singleLine="true"
+        app:menu_colorNormal="@color/colorPrimary"
+        app:menu_colorPressed="@color/colorPrimaryLight"
+        app:menu_fab_label="音乐来源">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/qqmusicfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_qqmusic"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryLight"
+            app:fab_label="QQ音乐" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/cloudfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_cloud"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryLight"
+            app:fab_label="网易云" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/xiamifab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_xiami"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryLight"
+            app:fab_label="虾米" />
+    </com.github.clans.fab.FloatingActionMenu>
+</android.support.design.widget.CoordinatorLayout>
 
 </LinearLayout>

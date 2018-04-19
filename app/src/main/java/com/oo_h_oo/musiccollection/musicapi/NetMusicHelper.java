@@ -1,7 +1,9 @@
 package com.oo_h_oo.musiccollection.musicapi;
 
-import com.oo_h_oo.musiccollection.musicapi.analysis.BaseAnalyze;
+import com.oo_h_oo.musiccollection.musicapi.analysis.CloudMusicAnalyze;
 import com.oo_h_oo.musiccollection.musicapi.analysis.QQMusicAnalyze;
+import com.oo_h_oo.musiccollection.musicapi.analysis.XiaMiMusicAnalyze;
+import com.oo_h_oo.musiccollection.musicapi.returnhelper.MusicListAndPlayListDetail;
 import com.oo_h_oo.musiccollection.musicapi.returnhelper.PlayListAndCount;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
 import com.oo_h_oo.musiccollection.musicmanage.NetMusicType;
@@ -13,20 +15,20 @@ import java.util.List;
 
 
 public class NetMusicHelper {
-    public static PlayListAndCount GetPlayList(int offset, NetMusicType type) {
+    public static PlayListAndCount getPlayList(int offset, NetMusicType type) {
         PlayListAndCount playListAndCount;
         switch (type){
             case QQMusic:
-                playListAndCount = QQMusicAnalyze.analyze.GetPlayList(offset);
+                playListAndCount = QQMusicAnalyze.getInstance().getPlayList(offset);
                 break;
             case CloudMusix:
-                playListAndCount = new PlayListAndCount(new ArrayList<Playlist>(),0);
+                playListAndCount = CloudMusicAnalyze.getInstance().getPlayList(offset);;
                 break;
             case XiaMiMusic:
-                playListAndCount = new PlayListAndCount(new ArrayList<Playlist>(),0);
+                playListAndCount = XiaMiMusicAnalyze.getInstance().getPlayList(offset);
                 break;
             default:
-                    playListAndCount = new PlayListAndCount(new ArrayList<Playlist>(),0);
+                playListAndCount = new PlayListAndCount(new ArrayList<Playlist>(),1);
         }
         return playListAndCount;
     }
@@ -35,17 +37,54 @@ public class NetMusicHelper {
         List<Music> list;
         switch (type){
             case QQMusic:
-                list = QQMusicAnalyze.analyze.getRankingMusicList(listType);
+                list = QQMusicAnalyze.getInstance().getRankingMusicList(listType);
                 break;
             case CloudMusix:
-                list = new ArrayList<>();
+                list = CloudMusicAnalyze.getInstance().getRankingMusicList(listType);
+                if (list.size() == 0) list = CloudMusicAnalyze.getInstance().getRankingMusicList(listType);
                 break;
             case XiaMiMusic:
-                list = new ArrayList<>();
+                list = XiaMiMusicAnalyze.getInstance().getRankingMusicList(listType);
                 break;
             default:
                 list = new ArrayList<>();
         }
         return list;
+    }
+
+    public static MusicListAndPlayListDetail getPlayListItems(String url, NetMusicType type){
+
+        MusicListAndPlayListDetail musicListAndPlayListDetail;
+        switch (type){
+            case QQMusic:
+                musicListAndPlayListDetail = QQMusicAnalyze.getInstance().getPlayListItems(url);
+                break;
+            case CloudMusix:
+                musicListAndPlayListDetail = CloudMusicAnalyze.getInstance().getPlayListItems(url);
+                if (musicListAndPlayListDetail.getList().size() == 0)
+                    musicListAndPlayListDetail = CloudMusicAnalyze.getInstance().getPlayListItems(url);
+                break;
+            case XiaMiMusic:
+                musicListAndPlayListDetail = XiaMiMusicAnalyze.getInstance().getPlayListItems(url);
+                break;
+            default:
+                musicListAndPlayListDetail = new MusicListAndPlayListDetail(new ArrayList<Music>(),"","");
+        }
+        return musicListAndPlayListDetail;
+    }
+
+    public static void getMusicDetail(Music music){
+
+        switch (music.getOrigin()){
+            case QQMusic:
+                QQMusicAnalyze.getInstance().getMusicDetail(music);
+                break;
+            case CloudMusix:
+                CloudMusicAnalyze.getInstance().getMusicDetail(music);
+                break;
+            case XiaMiMusic:
+                XiaMiMusicAnalyze.getInstance().getMusicDetail(music);
+                break;
+        }
     }
 }

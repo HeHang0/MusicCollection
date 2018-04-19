@@ -3,19 +3,20 @@ package com.oo_h_oo.musiccollection.widget;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.RelativeLayout;
 
 import com.oo_h_oo.musiccollection.R;
 
 /**
  * 自定义一个控件，继承RelativeLayout
  * */
-public class BackgourndAnimationConstraintLayout extends ConstraintLayout {
+public class BackgourndAnimationRelativeLayout extends RelativeLayout {
 
     private final int DURATION_ANIMATION = 500;
     private final int INDEX_BACKGROUND = 0;
@@ -27,16 +28,17 @@ public class BackgourndAnimationConstraintLayout extends ConstraintLayout {
     private LayerDrawable layerDrawable;
     private ObjectAnimator objectAnimator;
     private int musicPicRes = -1;
+    private String musicPicResStr = "";
 
-    public BackgourndAnimationConstraintLayout(Context context) {
+    public BackgourndAnimationRelativeLayout(Context context) {
         this(context, null);
     }
 
-    public BackgourndAnimationConstraintLayout(Context context, AttributeSet attrs) {
+    public BackgourndAnimationRelativeLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BackgourndAnimationConstraintLayout(Context context, AttributeSet attrs, int
+    public BackgourndAnimationRelativeLayout(Context context, AttributeSet attrs, int
             defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initLayerDrawable();
@@ -54,6 +56,7 @@ public class BackgourndAnimationConstraintLayout extends ConstraintLayout {
         layerDrawable = new LayerDrawable(drawables);
     }
 
+    @SuppressLint("ObjectAnimatorBinding")
     private void initObjectAnimator() {
         objectAnimator = ObjectAnimator.ofFloat(this, "number", 0f, 1.0f);
         objectAnimator.setDuration(DURATION_ANIMATION);
@@ -64,7 +67,7 @@ public class BackgourndAnimationConstraintLayout extends ConstraintLayout {
                 int foregroundAlpha = (int) ((float) animation.getAnimatedValue() * 255);
                 /*动态设置Drawable的透明度，让前景图逐渐显示*/
                 layerDrawable.getDrawable(INDEX_FOREGROUND).setAlpha(foregroundAlpha);
-                BackgourndAnimationConstraintLayout.this.setBackground(layerDrawable);
+                BackgourndAnimationRelativeLayout.this.setBackground(layerDrawable);
             }
         });
         objectAnimator.addListener(new Animator.AnimatorListener() {
@@ -103,6 +106,13 @@ public class BackgourndAnimationConstraintLayout extends ConstraintLayout {
     public boolean isNeed2UpdateBackground(int musicPicRes) {
         if (this.musicPicRes == -1) return true;
         if (musicPicRes != this.musicPicRes) {
+            return true;
+        }
+        return false;
+    }
+    public boolean isNeed2UpdateBackground(String musicPicRes) {
+        if (this.musicPicResStr == "") return true;
+        if (musicPicRes != this.musicPicResStr) {
             return true;
         }
         return false;

@@ -8,6 +8,8 @@
         android:id="@+id/img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="1dp"
+        android:layout_marginStart="1dp"
         android:src="@mipmap/default_background_music"
         android:scaleType="fitXY"/>
 

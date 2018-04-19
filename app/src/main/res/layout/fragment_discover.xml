@@ -1,17 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ptr="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <com.handmark.pulltorefresh.library.PullToRefreshGridView
-        xmlns:ptr="http://schemas.android.com/apk/res-auto"
         android:id="@+id/listview_discover"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:horizontalSpacing="5dp"
+        android:horizontalSpacing="4dp"
         android:numColumns="3"
         android:scrollbarStyle="insideOverlay"
         android:stretchMode="columnWidth"
-        android:verticalSpacing="5dp"
+        android:verticalSpacing="4dp"
         ptr:ptrMode="both"/>
-</RelativeLayout>
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/menu_pagetype"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        app:menu_icon="@drawable/ic_menu"
+        app:menu_labels_ellipsize="end"
+        app:menu_labels_singleLine="true"
+        app:menu_colorNormal="@color/colorPrimary"
+        app:menu_colorPressed="@color/colorPrimaryLight"
+        app:menu_fab_label="音乐来源">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/qqmusicfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_qqmusic"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryLight"
+            app:fab_label="QQ音乐" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/cloudfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_cloud"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryLight"
+            app:fab_label="网易云" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/xiamifab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_xiami"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryLight"
+            app:fab_label="虾米" />
+    </com.github.clans.fab.FloatingActionMenu>
+
+
+</android.support.design.widget.CoordinatorLayout>

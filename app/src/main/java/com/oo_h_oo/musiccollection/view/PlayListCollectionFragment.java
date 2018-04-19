@@ -5,16 +5,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ListView;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.oo_h_oo.musiccollection.R;
 import com.oo_h_oo.musiccollection.adapter.PlayListCollectionAdapter;
+import com.oo_h_oo.musiccollection.defaultres.GlobalResources;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
 import com.oo_h_oo.musiccollection.musicmanage.PlayListCollection;
+import com.oo_h_oo.musiccollection.musicmanage.Playlist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +39,25 @@ public class PlayListCollectionFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 PlayListCollection item = (PlayListCollection) adapterView.getItemAtPosition(i);
-                Snackbar.make(view, "Don't click me.please!.I'am " + item.getName(), Snackbar.LENGTH_SHORT).show();
+                GlobalResources.getInstance().getMainActivity().showMusicList(item);
             }
         });
+
+        playListCollectionView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>(){
+            @Override
+            public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView){
+                Log.e("TAG", "onPullDownToRefresh");
+                //这里写下拉刷新的任务
+                new PlayListCollectionFragment.GetDataTask().execute();
+            }
+
+            @Override
+            public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView){
+                Log.e("TAG", "onPullUpToRefresh");
+                //这里写上拉加载更多的任务
+            }
+        });
+
         new PlayListCollectionFragment.GetDataTask().execute();
         return view;
     }
@@ -53,6 +74,7 @@ public class PlayListCollectionFragment extends Fragment {
         @Override
         protected void onPostExecute(List<PlayListCollection> result)
         {
+            list.clear();
             list.addAll(result);
             adapter.notifyDataSetChanged();
             // Call onRefreshComplete when the list has been refreshed.
@@ -61,10 +83,10 @@ public class PlayListCollectionFragment extends Fragment {
     }
 
     private List<PlayListCollection> getData(){
-        List<PlayListCollection> list = new ArrayList<>();
-        for (int i=0; i < 15;i++){
-            list.add(new PlayListCollection("收藏歌单" + (i+1), "https://p1.music.126.net/ImfNhEZ47Wfx825XLTf-vw==/109951163214338579.jpg?param=150y150", new ArrayList<Music>() ));
-        }
-        return list;
+        return GlobalResources.getInstance().getPlayListCollection();
+    }
+
+    public void updateData(){
+        new PlayListCollectionFragment.GetDataTask().execute();
     }
 }

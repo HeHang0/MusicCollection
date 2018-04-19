@@ -30,7 +30,7 @@ public class MusicListAdapter extends BaseAdapter {
         TextView titleView = itemView.findViewById(R.id.title);
         titleView.setText(info.getTitle());
         TextView suntitleView = itemView.findViewById(R.id.sub_title);
-        suntitleView.setText(info.getSinger() + " - " + info.getAlbum());
+        suntitleView.setText(info.getSinger() + (info.getAlbum().length() > 0 ? " - " + info.getAlbum() : ""));
 
         return itemView;
     }

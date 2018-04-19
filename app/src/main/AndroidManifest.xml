@@ -20,6 +20,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PlayActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleInstance"
+            android:windowSoftInputMode="adjustResize" />
+
+        <service
+            android:name="com.oo_h_oo.musiccollection.service.MusicService"
+            android:enabled="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            />
     </application>
 
 </manifest>

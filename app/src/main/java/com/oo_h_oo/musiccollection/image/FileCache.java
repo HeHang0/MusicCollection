@@ -5,7 +5,7 @@ import android.content.Context;
 import java.io.File;
 
 public class FileCache {
-    private static final String DIR_NAME = "MusicCollection";
+    private static final String DIR_NAME = "MusicCollection/Cache/Image";
     private File cacheDir;
 
     public FileCache(Context context) {
@@ -27,7 +27,7 @@ public class FileCache {
     public File getFile(String url) {
         // Identify images by url's hash code
         String filename = String.valueOf(url.hashCode());
-
+//filename = "11.jpg";        ///////////////////////////////////////////////////////////////强制修改
         return new File(cacheDir, filename);
     }
 
