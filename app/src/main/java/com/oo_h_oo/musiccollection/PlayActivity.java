@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -15,25 +16,36 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bigkoo.alertview.AlertView;
+import com.bigkoo.alertview.OnItemClickListener;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.oo_h_oo.musiccollection.adapter.MusicListAdapter;
 import com.oo_h_oo.musiccollection.defaultres.GlobalResources;
 import com.oo_h_oo.musiccollection.image.FileCache;
 import com.oo_h_oo.musiccollection.image.ImageLoader;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
 import com.oo_h_oo.musiccollection.service.MusicService;
+import com.oo_h_oo.musiccollection.shareapi.qq.BaseUIListener;
 import com.oo_h_oo.musiccollection.utils.DisplayUtil;
 import com.oo_h_oo.musiccollection.utils.FastBlurUtil;
 import com.oo_h_oo.musiccollection.widget.BackgourndAnimationRelativeLayout;
 import com.oo_h_oo.musiccollection.widget.DiscView;
+import com.tencent.connect.share.QQShare;
+import com.tencent.tauth.Tencent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,6 +55,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static android.net.sip.SipErrorCode.TIME_OUT;
+import static android.provider.UserDictionary.Words.APP_ID;
 import static com.oo_h_oo.musiccollection.widget.DiscView.DURATION_NEEDLE_ANIAMTOR;
 
 
@@ -52,9 +65,14 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
     private DiscView mDisc;
     private Toolbar mToolbar;
     private SeekBar mSeekBar;
-    private ImageView mIvPlayOrPause, mIvNext, mIvLast;
+    private ImageView mIvPlayOrPause, mIvNext, mIvLast, mIvMusicList;
     private TextView mTvMusicDuration,mTvTotalMusicDuration;
     private BackgourndAnimationRelativeLayout mRootLayout;
+    private AlertView mAlertViewMusicList;
+    private PullToRefreshListView musicListView;
+    private MusicListAdapter adapter;
+    private Tencent mTencent;
+    private static final String APP_ID = "1106864706";
     public static final int MUSIC_MESSAGE = 0;
 
     public static final String PARAM_MUSIC_LIST = "PARAM_MUSIC_LIST";
@@ -75,12 +93,14 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mTencent = Tencent.createInstance(APP_ID, this.getApplicationContext());
         setContentView(R.layout.layout_playpage);
         initMusicDatas();
-        initView();
         initMusicReceiver();
+        initView();
         makeStatusBarTransparent();
         GlobalResources.getInstance().setPlayActivity(this);
+        //moveTaskToBack(true);
     }
 
     private void initMusicReceiver() {
@@ -97,6 +117,7 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
         mDisc = findViewById(R.id.discview);
         mIvNext = findViewById(R.id.ivNext);
         mIvLast = findViewById(R.id.ivLast);
+        mIvMusicList = findViewById(R.id.currentList);
         mIvPlayOrPause = findViewById(R.id.ivPlayOrPause);
         mTvMusicDuration = findViewById(R.id.tvCurrentTime);
         mTvTotalMusicDuration = findViewById(R.id.tvTotalTime);
@@ -107,9 +128,11 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
 //        setSupportActionBar(mToolbar);
 //        mToolbar.setNavigationOnClickListener(this);
         mToolbar.findViewById(R.id.back_to_main).setOnClickListener(this);
+        mToolbar.findViewById(R.id.sharemusic).setOnClickListener(this);
         mDisc.setPlayInfoListener(this);
         mIvLast.setOnClickListener(this);
         mIvNext.setOnClickListener(this);
+        mIvMusicList.setOnClickListener(this);
         mIvPlayOrPause.setOnClickListener(this);
 
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -133,16 +156,38 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
         mDisc.setFirstMusicInfo();
         mTvMusicDuration.setText(duration2Time(0));
         mTvTotalMusicDuration.setText(duration2Time(0));
+
+        mAlertViewMusicList = new AlertView(null, null, "关闭", null, null, this, AlertView.Style.ActionSheet, null);
+        ViewGroup extView = (ViewGroup) LayoutInflater.from(this).inflate(R.layout.alert_musiclist_layout, null);
+        musicListView = extView.findViewById(R.id.listview_musiclist);
+        adapter = new MusicListAdapter(getLayoutInflater(), GlobalResources.getInstance().getCurrentMusicList());
+        musicListView.setAdapter(adapter);
+        musicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mDisc.playTo(i-1);
+                mAlertViewMusicList.dismiss();
+            }
+        });
+        mAlertViewMusicList.addExtView(extView);
 //        mDisc.setMusicDataList(GlobalResources.getInstance().getCurrentMusicList());
     }
 
-    public void updateMusicData(){
-        mDisc.addMusicInfo();
+    public void updateMusicData(boolean needPlay){
+        mDisc.addMusicInfo(needPlay);
     }
 
     private void stopUpdateSeekBarProgree() {
         mMusicHandler.removeMessages(MUSIC_MESSAGE);
     }
+
+    private OnItemClickListener musicListItemClick = new OnItemClickListener() {
+        @Override
+        public void onItemClick(Object o, int position) {
+            Music music = GlobalResources.getInstance().getCurrentMusicList().get(position);
+            Snackbar.make(getWindow().getDecorView(), "Don't click me.please!." + music.getSinger(), Snackbar.LENGTH_SHORT).show();
+        }
+    };
 
     /*设置透明状态栏*/
     private void makeStatusBarTransparent() {
@@ -257,6 +302,7 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
 //        Bitmap cropBitmap = Bitmap.createBitmap(bitmap, cropBitmapWidthX, 0, cropBitmapWidth,
 //                bitmap.getHeight());
         /*缩小图片*/
+        if (bitmap == null) bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.default_background_music);
         Bitmap scaleBitmap = Bitmap.createScaledBitmap(bitmap, DisplayUtil.getScreenWidth(PlayActivity.this)/10, DisplayUtil.getScreenHeight(PlayActivity.this)/10, false);
         /*模糊化*/
         final Bitmap blurBitmap = FastBlurUtil.blurBitmap(PlayActivity.this, scaleBitmap, 25.f);//doBlur(scaleBitmap, 200, true);
@@ -333,6 +379,9 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
                 stop();
                 break;
             }
+            case PLAYCURRENT:
+                playCurrent();
+                break;
         }
     }
 
@@ -346,8 +395,40 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
             mDisc.last();
         } else if (v.getId() == R.id.back_to_main){
             moveTaskToBack(true);
+        }else if (v.getId() == R.id.currentList){
+            mAlertViewMusicList.show();
+        }else if (v.getId() == R.id.sharemusic){
+            shareToQQ(GlobalResources.getInstance().getCurrentMusicList().get(GlobalResources.getInstance().getCurrentMusicIndex()));
         }
     }
+
+    private void shareToQQ(Music music){
+        final Bundle params = new Bundle();
+        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_AUDIO);
+        params.putString(QQShare.SHARE_TO_QQ_TITLE, music.getSinger() + " - " + music.getTitle());
+        params.putString(QQShare.SHARE_TO_QQ_SUMMARY,  music.getAlbum());
+        switch (music.getOrigin()){
+            case QQMusic:
+                params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  "https://y.qq.com/n/yqq/song/" + music.getMusicID() + ".html");
+                break;
+            case CloudMusix:
+                params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  "http://music.163.com/song?id=" + music.getMusicID());
+                break;
+            case XiaMiMusic:
+                params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  "https://www.xiami.com/song/" + music.getMusicID());
+                break;
+        }
+        params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, music.getAlbumImageUrl());
+        params.putString(QQShare.SHARE_TO_QQ_AUDIO_URL, music.getPath());
+        params.putString(QQShare.SHARE_TO_QQ_APP_NAME,  "听");
+        mTencent.shareToQQ(this, params, new BaseUIListener(this));
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Tencent.onActivityResultData(requestCode,resultCode,data,new BaseUIListener(this) );
+    }
+
+
 
     private void play() {
         optMusic(MusicService.ACTION_OPT_MUSIC_PLAY);
@@ -384,6 +465,18 @@ public class PlayActivity extends AppCompatActivity implements DiscView.IPlayInf
             @Override
             public void run() {
                 optMusic(MusicService.ACTION_OPT_MUSIC_LAST);
+            }
+        }, DURATION_NEEDLE_ANIAMTOR);
+        stopUpdateSeekBarProgree();
+        mTvMusicDuration.setText(duration2Time(0));
+        mTvTotalMusicDuration.setText(duration2Time(0));
+    }
+
+    private void playCurrent() {
+        mRootLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                optMusic(MusicService.ACTION_OPT_MUSIC_PLAY_CURRENT);
             }
         }, DURATION_NEEDLE_ANIAMTOR);
         stopUpdateSeekBarProgree();

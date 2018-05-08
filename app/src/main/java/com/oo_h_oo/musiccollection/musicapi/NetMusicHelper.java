@@ -3,6 +3,7 @@ package com.oo_h_oo.musiccollection.musicapi;
 import com.oo_h_oo.musiccollection.musicapi.analysis.CloudMusicAnalyze;
 import com.oo_h_oo.musiccollection.musicapi.analysis.QQMusicAnalyze;
 import com.oo_h_oo.musiccollection.musicapi.analysis.XiaMiMusicAnalyze;
+import com.oo_h_oo.musiccollection.musicapi.returnhelper.MusicListAndCount;
 import com.oo_h_oo.musiccollection.musicapi.returnhelper.MusicListAndPlayListDetail;
 import com.oo_h_oo.musiccollection.musicapi.returnhelper.PlayListAndCount;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
@@ -86,5 +87,23 @@ public class NetMusicHelper {
                 XiaMiMusicAnalyze.getInstance().getMusicDetail(music);
                 break;
         }
+    }
+
+    public static MusicListAndCount getSearchMusicList(String searchStr, int offset, NetMusicType type){
+        MusicListAndCount musicListAndCount;
+        switch (type){
+            case XiaMiMusic:
+                musicListAndCount = XiaMiMusicAnalyze.getInstance().getSearchMusicList(searchStr,offset);
+                break;
+            case CloudMusix:
+                musicListAndCount = CloudMusicAnalyze.getInstance().getSearchMusicList(searchStr,offset);
+                break;
+            case QQMusic:
+                musicListAndCount = QQMusicAnalyze.getInstance().getSearchMusicList(searchStr,offset);
+                break;
+                default:
+                    musicListAndCount = new MusicListAndCount(new ArrayList<Music>(), 0);
+        }
+        return musicListAndCount;
     }
 }

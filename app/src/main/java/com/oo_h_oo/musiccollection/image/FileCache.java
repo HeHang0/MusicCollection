@@ -5,7 +5,7 @@ import android.content.Context;
 import java.io.File;
 
 public class FileCache {
-    private static final String DIR_NAME = "MusicCollection/Cache/Image";
+    public static final String DIR_NAME = "MusicCollection/Cache/Image";
     private File cacheDir;
 
     public FileCache(Context context) {

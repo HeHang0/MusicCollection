@@ -27,6 +27,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     public static final String ACTION_OPT_MUSIC_LAST = "ACTION_OPT_MUSIC_LAST";
     public static final String ACTION_OPT_MUSIC_SEEK_TO = "ACTION_OPT_MUSIC_SEEK_TO";
     public static final String ACTION_OPT_MUSIC_PLAY_TO = "ACTION_OPT_MUSIC_PLAY_TO";
+    public static final String ACTION_OPT_MUSIC_PLAY_CURRENT = "ACTION_OPT_MUSIC_PLAY_CURRENT";
 
     /*状态指令*/
     public static final String ACTION_STATUS_MUSIC_PLAY = "ACTION_STATUS_MUSIC_PLAY";
@@ -127,9 +128,9 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         @Override
         protected Music doInBackground(Void... p)
         {
-            if (GlobalResources.getInstance().getCurrentMusicList().get(index).getPath().length() < 5){
+//            if (GlobalResources.getInstance().getCurrentMusicList().get(index).getPath().length() < 5){
                 NetMusicHelper.getMusicDetail(GlobalResources.getInstance().getCurrentMusicList().get(index));
-            }
+//            }
             return GlobalResources.getInstance().getCurrentMusicList().get(index);
         }
 
@@ -173,6 +174,9 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         } else {
             stop();
         }
+    }
+    private void playCurrent(){
+        play(GlobalResources.getInstance().getCurrentMusicIndex());
     }
 
     private void last() {
@@ -218,6 +222,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
                 seekTo(intent);
             }else if (action.equals(ACTION_OPT_MUSIC_PLAY_TO)){
                 playTo(intent);
+            }else if (action.equals(ACTION_OPT_MUSIC_PLAY_CURRENT)){
+                playCurrent();
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.oo_h_oo.musiccollection.musicmanage;
 
+import java.util.Date;
+
 public class Music {
 
     public String getTitle() {
@@ -94,6 +96,7 @@ public class Music {
     private String singer = "";
     private String album = "";
     private long duration = 0;
+    private Date date = new Date();;
     private String size = "";
     private String bitRate = "";
     private String path = "";

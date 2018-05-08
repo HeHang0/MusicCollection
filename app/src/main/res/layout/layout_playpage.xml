@@ -6,8 +6,8 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_blackground"
     android:fitsSystemWindows="true"
+    android:background="@drawable/ic_blackground"
     >
 
     <android.support.v7.widget.Toolbar
@@ -40,7 +40,11 @@
                     android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:gravity="center"
+                    android:paddingEnd="60dp"
+                    android:paddingStart="60dp"
+                    android:singleLine="true"
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
 
@@ -48,11 +52,24 @@
                     android:id="@+id/sub_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:gravity="center"
+                    android:paddingEnd="60dp"
+                    android:paddingStart="60dp"
+
+                    android:singleLine="true"
                     android:textColor="@android:color/white"
                     android:textSize="14sp" />
 
             </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_share"
+                android:id="@+id/sharemusic"/>
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
 

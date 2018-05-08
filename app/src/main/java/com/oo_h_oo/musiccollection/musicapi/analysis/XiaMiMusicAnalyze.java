@@ -30,6 +30,7 @@ public class XiaMiMusicAnalyze implements IBaseAnalyze {
     private static String playListHotAPI = "http://www.xiami.com/collect/recommend/page/%s";
     private static String playListDetailAPI = "http://api.xiami.com/web?v=2.0&app_key=1&id=%s&r=collect/detail";
     private static String musicDetailAPI = "http://api.xiami.com/web?v=2.0&app_key=1&id=%s&r=song/detail";
+    private static String searchAPI = "http://api.xiami.com/web?v=2.0&app_key=1&key=%s&page=%s&limit=30&r=search/songs";
 
     private Map<RankingListType,String> rankinListAPI = new HashMap<>();
     private XiaMiMusicAnalyze(){
@@ -136,9 +137,44 @@ public class XiaMiMusicAnalyze implements IBaseAnalyze {
             music.setPath(ja.getString("listen_file"));
             music.setLyricPath(ja.getString("lyric"));
             String secondstr = Tools.getStrWithRegular("/([\\d]{2,4})/", music.getLyricPath());
+            if (secondstr.length() < 1) secondstr = "0";
             music.setDuration(Long.valueOf(secondstr));
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public MusicListAndCount getSearchMusicList(String searchStr, int offset) {
+        String retStr = Tools.sendDataByGet(String.format(searchAPI, searchStr, offset+1));
+        List<Music> list = new ArrayList<>();
+        int count = 0;
+        try {
+            JSONObject ja = new JSONObject(retStr).getJSONObject("data");
+            count = ja.getInt("total");
+            JSONArray streams = ja.getJSONArray("songs");
+            for (int i = 0; i < streams.length(); i++){
+                try {
+                    JSONObject stream = streams.getJSONObject(i);
+                    Music music = new Music();
+                    music.setTitle(stream.getString("song_name"));
+                    music.setSinger(stream.getString("artist_name"));
+                    music.setMusicID(stream.getString("song_id"));
+                    music.setAlbum(stream.getString("album_name"));
+                    music.setAlbumImageUrl(stream.getString("album_logo"));
+                    music.setPath(stream.getString("listen_file"));
+//                    music.setDuration(Long.valueOf(stream.getString("length")));
+                    music.setOrigin(NetMusicType.XiaMiMusic);
+//                    music.setSize(Long.valueOf(stream.getString("length"))*16/(1024*1024) + "Mb");
+                    music.setLyricPath(stream.getString("lyric"));
+                    list.add(music);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return new MusicListAndCount(list, count);
     }
 }

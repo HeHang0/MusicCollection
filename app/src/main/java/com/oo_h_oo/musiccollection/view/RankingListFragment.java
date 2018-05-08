@@ -1,9 +1,7 @@
 package com.oo_h_oo.musiccollection.view;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ListView;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -19,15 +16,12 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.oo_h_oo.musiccollection.MainActivity;
-import com.oo_h_oo.musiccollection.PlayActivity;
 import com.oo_h_oo.musiccollection.R;
 import com.oo_h_oo.musiccollection.adapter.MusicListAdapter;
 import com.oo_h_oo.musiccollection.defaultres.GlobalResources;
 import com.oo_h_oo.musiccollection.musicapi.NetMusicHelper;
 import com.oo_h_oo.musiccollection.musicmanage.Music;
 import com.oo_h_oo.musiccollection.musicmanage.NetMusicType;
-import com.oo_h_oo.musiccollection.musicmanage.Playlist;
 import com.oo_h_oo.musiccollection.musicmanage.RankingListType;
 
 import java.util.ArrayList;

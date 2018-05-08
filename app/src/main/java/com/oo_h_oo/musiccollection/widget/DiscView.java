@@ -85,7 +85,7 @@ public class DiscView extends RelativeLayout {
 
     /*DiscView需要触发的音乐切换状态：播放、暂停、上/下一首、停止*/
     public enum MusicChangedStatus {
-        PLAY, PAUSE, NEXT, LAST, STOP
+        PLAY, PAUSE, NEXT, LAST, STOP, PLAYCURRENT
     }
 
     public interface IPlayInfo {
@@ -132,14 +132,14 @@ public class DiscView extends RelativeLayout {
 
         mDiscBlackground.setLayoutParams(layoutParams);
     }
-
+    private int currentItem;
     private void initViewPager() {
         mViewPagerAdapter = new ViewPagerAdapter();
         mVpContain = findViewById(R.id.vpDiscContain);
         mVpContain.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        currentItem = GlobalResources.getInstance().getCurrentMusicIndex();
         mVpContain.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             int lastPositionOffsetPixels = 0;
-            int currentItem = 0;
             @Override
             public void onPageScrolled(int position, float positionOffset, int
                     positionOffsetPixels) {
@@ -166,10 +166,18 @@ public class DiscView extends RelativeLayout {
             public void onPageSelected(int position) {
                 resetOtherDiscAnimation(position);
                 notifyMusicPicChanged(position);
-                if (position > currentItem) {
+                notifyMusicInfoChanged(position);
+                if (position > GlobalResources.getInstance().getCurrentMusicIndex()) {
                     notifyMusicStatusChanged(MusicChangedStatus.NEXT);
-                } else {
+                } else if (position < GlobalResources.getInstance().getCurrentMusicIndex()){
                     notifyMusicStatusChanged(MusicChangedStatus.LAST);
+                }else {
+                    if (currentItem == GlobalResources.getInstance().getCurrentMusicIndex())
+                        playOrPause();
+                    else{
+                        stop();
+                        notifyMusicStatusChanged(MusicChangedStatus.PLAY);
+                    }
                 }
                 currentItem = position;
             }
@@ -389,48 +397,45 @@ public class DiscView extends RelativeLayout {
         return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.default_album,options), musicPicSize, musicPicSize, true);
     }
 
-    public void setDiscViewItem() {
-
-        mDiscLayouts.clear();
-        mDiscAnimators.clear();
-
-        for (int i = 0; i < 3; i++) {
-            View discLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_disc,
-                    mVpContain, false);
-            ImageView disc = discLayout.findViewById(R.id.ivDisc);
-            String src = "cc";
-            if (i == 0) src = "aa";
-            else if (i == 1) src = "bb";
-            disc.setImageDrawable(getDiscDrawable(src));
-            mDiscAnimators.add(getDiscObjectAnimator(disc));
-            mDiscLayouts.add(discLayout);
-        }
-        mViewPagerAdapter.notifyDataSetChanged();
-//        Music musicData = GlobalResources.getInstance().getCurrentMusicList().get(GlobalResources.getInstance().getCurrentMusicIndex());
-//        if (mIPlayInfo != null) {
-//            mIPlayInfo.onMusicInfoChanged(musicData.getTitle(), musicData.getSinger() + ((musicData.getAlbum().length() > 0)  ? " - " : "") + musicData.getAlbum());
-//            mIPlayInfo.onMusicPicChanged(musicData.getAlbumImageUrl());
-//        }
-    }
-
     private boolean firstSetMusicInfoFlag = false;
-    public void addMusicInfo(){
+    public void addMusicInfo(boolean needPlay){
         mViewPagerAdapter.notifyDataSetChanged();
         if (!firstSetMusicInfoFlag && GlobalResources.getInstance().getCurrentMusicIndex() >= 0
                 && GlobalResources.getInstance().getCurrentMusicIndex() <
                 GlobalResources.getInstance().getCurrentMusicList().size()){
             firstSetMusicInfoFlag = true;
+            mVpContain.setCurrentItem(GlobalResources.getInstance().getCurrentMusicIndex());
             notifyMusicInfoChanged(GlobalResources.getInstance().getCurrentMusicIndex());
+            notifyMusicPicChanged(GlobalResources.getInstance().getCurrentMusicIndex());
+            setDiscImageView(GlobalResources.getInstance().getCurrentMusicIndex());
+        }
+        if (needPlay){
+            GlobalResources.getInstance().setCurrentMusicIndex(GlobalResources.getInstance().getCurrentMusicList().size()-1);
+            mVpContain.setCurrentItem(GlobalResources.getInstance().getCurrentMusicIndex());
+            notifyMusicInfoChanged(GlobalResources.getInstance().getCurrentMusicIndex());
+            notifyMusicPicChanged(GlobalResources.getInstance().getCurrentMusicIndex());
             setDiscImageView(GlobalResources.getInstance().getCurrentMusicIndex());
         }
     }
 
+    public void playTo(int position){
+        GlobalResources.getInstance().setCurrentMusicIndex(position);
+        mVpContain.setCurrentItem(position);
+        notifyMusicInfoChanged(position);
+        notifyMusicPicChanged(position);
+        setDiscImageView(position);
+    }
+
     public void setFirstMusicInfo(){
+        mViewPagerAdapter.notifyDataSetChanged();
         if (!firstSetMusicInfoFlag && GlobalResources.getInstance().getCurrentMusicIndex() >= 0
                 && GlobalResources.getInstance().getCurrentMusicIndex() <
                 GlobalResources.getInstance().getCurrentMusicList().size()){
             firstSetMusicInfoFlag = true;
+            mVpContain.setCurrentItem(GlobalResources.getInstance().getCurrentMusicIndex());
             notifyMusicInfoChanged(GlobalResources.getInstance().getCurrentMusicIndex());
+            notifyMusicPicChanged(GlobalResources.getInstance().getCurrentMusicIndex());
+            setDiscImageView(GlobalResources.getInstance().getCurrentMusicIndex());
         }
     }
 
@@ -553,7 +558,7 @@ public class DiscView extends RelativeLayout {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return getDiscDrawable(src);
+            return null;//getDiscDrawable(src);
         }
 
         @Override

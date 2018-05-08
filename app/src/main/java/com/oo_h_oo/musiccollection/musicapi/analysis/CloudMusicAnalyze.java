@@ -28,7 +28,7 @@ public class CloudMusicAnalyze implements IBaseAnalyze {
     }
 
     private static String encSecKey = "&encSecKey=2d48fd9fb8e58bc9c1f14a7bda1b8e49a3520a67a2300a1f73766caee29f2411c5350bceb15ed196ca963d6a6d0b61f3734f0a0f4a172ad853f16dd06018bc5ca8fb640eaa8decd1cd41f66e166cea7a3023bd63960e656ec97751cfc7ce08d943928e9db9b35400ff3d138bda1ab511a06fbee75585191cabe0e6e63f7350d6";
-
+    private static String searchAPI = "http://music.163.com/api/search/pc?s=%s&offset=%s&limit=30&type=1";
     private static String playListDetailAPI = "http://music.163.com/weapi/v3/playlist/detail?csrf_token=";
     private static String lyricAPI = "http://music.163.com/api/song/lyric?os=pc&id=%s&lv=-1&kv=-1&tv=-1";
 
@@ -174,8 +174,37 @@ public class CloudMusicAnalyze implements IBaseAnalyze {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
 
-//        retStr = Tools.sendDataByGet(String.format(lyricAPI, music.getMusicID()));
-
+    @Override
+    public MusicListAndCount getSearchMusicList(String searchStr, int offset) {
+        String retStr = Tools.sendDataByPost(String.format(searchAPI, searchStr, offset*30));
+        int count = 0;
+        List<Music> list = new ArrayList<>();
+        try {
+            JSONObject ja = new JSONObject(retStr).getJSONObject("result");
+            count = ja.getInt("songCount");
+            JSONArray streams = ja.getJSONArray("songs");
+            for (int i = 0; i < streams.length(); i++){
+                try {
+                    JSONObject stream = streams.getJSONObject(i);
+                    Music music = new Music();
+                    music.setAlbum(stream.getJSONObject("album").getString("name"));
+                    music.setAlbumImageUrl(stream.getJSONObject("album").getString("picUrl"));
+                    music.setDuration(Long.valueOf(stream.getString("duration")));
+                    music.setOrigin(NetMusicType.CloudMusix);
+                    music.setSize(Long.valueOf(stream.getString("duration"))*16/(1024*1024) + "Mb");
+                    music.setSinger(stream.getJSONArray("artists").getJSONObject(0).getString("name"));
+                    music.setTitle(stream.getString("name"));
+                    music.setMusicID(stream.getString("id"));
+                    list.add(music);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return new MusicListAndCount(list, count);
     }
 }

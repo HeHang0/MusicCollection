@@ -8,6 +8,14 @@ public class PlayListCollection {
         this.name = name;
         this.imgUrl = imgUrl;
         this.playList = playList;
+        if (imgUrl.length() < 5){
+            for (Music music: playList) {
+                if (music.getAlbumImageUrl().length() > 5){
+                    this.imgUrl = music.getAlbumImageUrl();
+                    break;
+                }
+            }
+        }
     }
 
     private String name;

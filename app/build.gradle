@@ -5,6 +5,7 @@ android {
     defaultConfig {
         applicationId "com.oo_h_oo.musiccollection"
         minSdkVersion 23
+        //noinspection OldTargetApi
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -31,11 +32,14 @@ dependencies {
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.beardedhen:androidbootstrap:2.0.1'
     implementation 'com.github.clans:fab:1.6.4'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.bigkoo:alertview:1.0.3'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation project(':PullToRefresh')
     implementation files('libs/json-20171018.jar')
     implementation files('libs/jsoup-1.11.2.jar')
+    implementation files('libs/open_sdk_r5990_lite.jar')
 }
