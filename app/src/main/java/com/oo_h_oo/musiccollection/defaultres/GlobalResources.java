@@ -187,7 +187,7 @@ public class GlobalResources {
         @Override
         protected Music doInBackground(Void... p)
         {
-            if (currentMusicList.get(index).getPath().length() < 5){
+            if (currentMusicList.get(index).getAlbumImageUrl().length() < 5){
                 NetMusicHelper.getMusicDetail(currentMusicList.get(index));
             }
             return currentMusicList.get(index);

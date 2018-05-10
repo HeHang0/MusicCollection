@@ -164,7 +164,28 @@ public class ImageLoader {
         }
     }
 
-    private void copyStream(InputStream is, OutputStream os) {
+    public static String getImageFilePathNet(Context context,String url) {
+        File f = new FileCache(context).getFile(url);
+        // From Network
+        try {
+            URL imageUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) imageUrl
+                    .openConnection();
+            conn.setConnectTimeout(2000);
+            conn.setReadTimeout(2000);
+            conn.setInstanceFollowRedirects(true);
+            InputStream is = conn.getInputStream();
+            OutputStream os = new FileOutputStream(f);
+            copyStream(is, os);
+            os.close();
+            conn.disconnect();
+            return f.getPath();
+        } catch (Throwable ex) {
+            return "";
+        }
+    }
+
+    private static void copyStream(InputStream is, OutputStream os) {
         int buffer_size = 1024;
 
         try {

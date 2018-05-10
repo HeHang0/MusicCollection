@@ -388,8 +388,7 @@ public class DiscView extends RelativeLayout {
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         if (musicPicRes.length() > 5){
             try {
-                ImageLoader imageLoader = new ImageLoader(getContext());
-                return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(imageLoader.getBitmapFilePath(musicPicRes), options), musicPicSize, musicPicSize, true);
+                return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(ImageLoader.getImageFilePathNet(getContext(),musicPicRes), options), musicPicSize, musicPicSize, true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -537,17 +536,19 @@ public class DiscView extends RelativeLayout {
     private void setDiscImageView(int position){
         ImageView disc = mDiscLayouts.get(position % mDiscLayouts.size()).findViewById(R.id.ivDisc);;
         String src = GlobalResources.getInstance().getCurrentMusicList().get(position).getAlbumImageUrl();
-        new setDiscImageViewTask(disc, src).execute();
+        new setDiscImageViewTask(disc, src, position).execute();
     }
 
     private class setDiscImageViewTask extends AsyncTask<Void, Void, Drawable>
     {
         private ImageView disc;
         private String src;
-        setDiscImageViewTask(ImageView imageView, String src){
+        private int position;
+        setDiscImageViewTask(ImageView imageView, String src, int position){
             super();
             this.disc = imageView;
             this.src = src;
+            this.position = position;
         }
 
         @Override
@@ -558,13 +559,13 @@ public class DiscView extends RelativeLayout {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return null;//getDiscDrawable(src);
+            return getDiscDrawable(src);
         }
 
         @Override
         protected void onPostExecute(Drawable result)
         {
-            disc.setImageDrawable(getDiscDrawable(src));
+                disc.setImageDrawable(result);
         }
     }
     private void play() {
